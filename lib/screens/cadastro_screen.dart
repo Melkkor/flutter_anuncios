@@ -22,7 +22,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
       setState(() {
         _nomeController.text = widget.itens!.nome;
         _descricaoController.text = widget.itens!.descricao;
-        _valorController.text = widget.itens!.valor;
+        _valorController.text = widget.itens!.valor.toString();
       });
     }
   }
@@ -127,12 +127,26 @@ class _CadastroScreenState extends State<CadastroScreen> {
                           Item newItem = Item(
                             _nomeController.text,
                             _descricaoController.text,
-                            _valorController.text,
+                            double.parse(_valorController.text),
                           );
                           Navigator.pop(context, newItem);
                         }
                       } catch (error) {
                         print("batata3");
+                        showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            title: const Text(
+                              'Digite um valor valido para o produto',
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, 'OK'),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
                       }
                     },
                   ),
