@@ -19,12 +19,12 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(
           "Anuncios",
           style: TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.yellow,
       ),
       body: ListView.separated(
         itemCount: _lista.length,
@@ -45,8 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Icon(Icons.edit, color: Colors.white)),
             ),
             onDismissed: (direction) {
-              if (direction == DismissDirection.endToStart) {
+              if (direction == DismissDirection.startToEnd) {
                 setState(() {
+                  print("removeu");
                   _lista.removeAt(index);
                 });
               }
@@ -73,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text(
                 produto.nome,
                 style: TextStyle(
+                  fontSize: 18,
                   color: produto.done ? Colors.grey : Colors.black,
                   decoration: produto.done
                       ? TextDecoration.lineThrough
@@ -89,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               trailing: Text(
-                produto.valor,
+                "R\$ ${produto.valor}",
                 style: TextStyle(
                   fontSize: 18,
                   color: produto.done ? Colors.grey : Colors.black,
@@ -125,7 +127,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
-        child: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Colors.black,
+        ),
         onPressed: () async {
           try {
             Item item = await Navigator.push(context,

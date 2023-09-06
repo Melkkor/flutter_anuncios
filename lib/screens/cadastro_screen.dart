@@ -27,6 +27,16 @@ class _CadastroScreenState extends State<CadastroScreen> {
     }
   }
 
+  String _validateDouble(String value) {
+    try {
+      // Tenta fazer o parsing do valor para double
+      double.parse(value);
+      return 'true'; // Valor é um double válido
+    } catch (e) {
+      return 'Digite um número válido'; // Valor não é um double válido
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,12 +44,12 @@ class _CadastroScreenState extends State<CadastroScreen> {
         title: const Text(
           "Cadastro de Item",
           style: TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.yellow,
       ),
       body: Form(
         key: _formKey,
@@ -51,7 +61,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                 controller: _nomeController,
                 style: const TextStyle(fontSize: 18),
                 decoration: const InputDecoration(
-                  labelText: "Nome",
+                  labelText: "Produto",
                   labelStyle: TextStyle(fontSize: 18),
                 ),
                 validator: (value) {
@@ -82,10 +92,13 @@ class _CadastroScreenState extends State<CadastroScreen> {
               child: TextFormField(
                 controller: _valorController,
                 style: const TextStyle(fontSize: 18),
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: "Valor",
-                  labelStyle: TextStyle(fontSize: 18),
-                ),
+                    label: Text(
+                      "Digite o valor do produto",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    prefixText: "R\$ "),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return "Preenchimento Obrigatorio!";
@@ -107,14 +120,19 @@ class _CadastroScreenState extends State<CadastroScreen> {
                     ),
                     style: ElevatedButton.styleFrom(primary: Colors.green),
                     onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      if (_formKey.currentState!.validate()) {
-                        Item newItem = Item(
-                          _nomeController.text,
-                          _descricaoController.text,
-                          _valorController.text,
-                        );
-                        Navigator.pop(context, newItem);
+                      try {
+                        print("batata2");
+                        FocusScope.of(context).unfocus();
+                        if (_formKey.currentState!.validate()) {
+                          Item newItem = Item(
+                            _nomeController.text,
+                            _descricaoController.text,
+                            _valorController.text,
+                          );
+                          Navigator.pop(context, newItem);
+                        }
+                      } catch (error) {
+                        print("batata3");
                       }
                     },
                   ),
