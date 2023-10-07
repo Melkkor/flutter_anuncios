@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_anuncios/model/item.dart';
 import 'package:flutter_anuncios/screens/cadastro_screen.dart';
+import 'package:flutter_anuncios/database/item_helper.dart';
+import 'package:flutter_anuncios/persistance/file_persistance.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -11,6 +14,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Item> _lista = List.empty(growable: true);
+  ItemHelper _helper = ItemHelper();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _helper.getAll().then((data) {
+      setState(() {
+        if (data != null) {
+          _lista = data;
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +61,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   alignment: Alignment(0.95, 0),
                   child: Icon(Icons.edit, color: Colors.white)),
             ),
-            onDismissed: (direction) {
+            onDismissed: (direction) async {
               if (direction == DismissDirection.startToEnd) {
-                setState(() {
-                  print("removeu");
-                  _lista.removeAt(index);
-                });
+                var result = await _helper.deleteItem(produto);
+                if (result != null) {
+                  setState(() {
+                    _lista.removeAt(index);
+
+                    const snackbar = SnackBar(
+                      content: Text("Tarefa apagada com sucesso!"),
+                      backgroundColor: Colors.red,
+                    );
+                  });
+                }
               }
             },
             confirmDismiss: (direction) async {
@@ -59,10 +83,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(
                       builder: (context) => CadastroScreen(itens: produto),
                     ));
-                if (editedItem != null) {
+                var result = await _helper.updateItem(editedItem);
+
+                if (result != null) {
                   setState(() {
                     _lista.removeAt(index);
                     _lista.insert(index, editedItem);
+
+                    const snackbar = SnackBar(
+                      content: Text("Tarefa Editada com sucesso!"),
+                      backgroundColor: Colors.orange,
+                    );
                   });
                 }
                 return false;
@@ -71,6 +102,13 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             },
             child: ListTile(
+              leading: produto.image != null
+                  ? CircleAvatar(
+                      child: ClipOval(
+                        child: Image.file(produto.image!),
+                      ),
+                    )
+                  : const SizedBox(),
               title: Text(
                 produto.nome,
                 style: TextStyle(
@@ -107,19 +145,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 );
               },
-              onLongPress: () async {
-                Item editedItem = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CadastroScreen(itens: produto),
-                    ));
-                if (editedItem != null) {
-                  setState(() {
-                    _lista.removeAt(index);
-                    _lista.insert(index, editedItem);
-                  });
-                }
-              },
+              // onLongPress: () async {
+              //   Item editedItem = await Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => CadastroScreen(itens: produto),
+              //       ));
+              //   if (editedItem != null) {
+              //     setState(() {
+              //       _lista.removeAt(index);
+              //       _lista.insert(index, editedItem);
+              //     });
+              //   }
+              // },
             ),
           );
         },
@@ -135,9 +173,16 @@ class _HomeScreenState extends State<HomeScreen> {
           try {
             Item item = await Navigator.push(context,
                 MaterialPageRoute(builder: (context) => CadastroScreen()));
-            setState(() {
-              _lista.add(item);
-            });
+            Item? savedItem = await _helper.saveItem(item);
+            if (savedItem != null) {
+              setState(() {
+                _lista.add(item);
+                final snackBar = SnackBar(
+                  content: Text('Item criado com sucesso!'),
+                  backgroundColor: Colors.green,
+                );
+              });
+            }
           } catch (error) {
             print("Error: ${error.toString()}");
           }

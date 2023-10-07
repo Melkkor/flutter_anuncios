@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_anuncios/model/item.dart';
 
@@ -14,6 +16,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
   TextEditingController _descricaoController = TextEditingController();
   TextEditingController _valorController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  File? _image;
 
   @override
   void initState() {
@@ -23,6 +26,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
         _nomeController.text = widget.itens!.nome;
         _descricaoController.text = widget.itens!.descricao;
         _valorController.text = widget.itens!.valor.toString();
+        _image = widget.itens!.image;
       });
     }
   }
@@ -55,6 +59,31 @@ class _CadastroScreenState extends State<CadastroScreen> {
         key: _formKey,
         child: Column(
           children: [
+            GestureDetector(
+              child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 20),
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    border: Border.all(width: 1, color: Colors.grey[400]!),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add_a_photo,
+                    size: 30,
+                  )),
+              onTap: () async {
+                ImagePicker _picker = ImagePicker();
+                XFile? imagePiked =
+                    await _picker.pickImage(source: ImageSource.camera);
+                if (imagePiked != null) {
+                  setState(() {
+                    _image = File(imagePiked.path);
+                  });
+                }
+              },
+            ),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
               child: TextFormField(
@@ -128,6 +157,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                             _nomeController.text,
                             _descricaoController.text,
                             double.parse(_valorController.text),
+                            _image,
                           );
                           Navigator.pop(context, newItem);
                         }
